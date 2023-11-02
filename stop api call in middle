@@ -1,0 +1,26 @@
+like we have this api for get users 
+  let api = /users
+
+  // and i call it for get user 
+  const getUsers = async() => {
+     await fatch("/users").then((res)=>{
+     console.log(res)
+     }).catch((err)=>{
+     console.log(err)
+     })
+  }
+
+  // if i want it stop in middle i can use this  method
+
+  const getUsers = async() => {
+      const conroller = new AbortController()
+
+      conroller.abort() // cancle api request
+      
+     await fatch("/users").then((res)=>{
+        console.log(res)
+     }).catch((err)=>{
+       console.log(err)
+     })
+  }
+  
