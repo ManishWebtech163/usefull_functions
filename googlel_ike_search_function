@@ -1,0 +1,37 @@
+ <input type="text" id="streetInput" placeholder="Enter a street name" oninput="filterStreets()">
+   <ul id="filteredStreets"></ul>
+
+// --Javascript--//
+   let streetNames = [
+      "Main Street",
+      "Elm Street",
+      "Park Avenue",
+      "Broadway",
+      "Maple Drive",
+      "Oak Lane"
+      // Add more street names as needed
+    ];
+
+    function filterStreets() {
+      let inputElement = document.getElementById('streetInput');
+      let enteredText = inputElement.value.toLowerCase();
+      let filteredStreets = streetNames.filter(street => street.toLowerCase().includes(enteredText));
+
+      displayFilteredStreets(filteredStreets, enteredText);
+    }
+
+    function displayFilteredStreets(filteredStreets, enteredText) {
+      let list = document.getElementById('filteredStreets');
+      list.innerHTML = '';
+
+      filteredStreets.forEach(street => {
+        let listItem = document.createElement('li');
+        let boldStreet = street.replace(new RegExp(enteredText,'ig'), '<span class="bold">$&</span>');
+        listItem.innerHTML = boldStreet;
+        list.appendChild(listItem);
+      });
+    }
+/--css--//
+.bold{
+  font-weight:bold
+  }
