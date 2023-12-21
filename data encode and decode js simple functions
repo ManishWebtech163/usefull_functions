@@ -1,0 +1,9 @@
+//==for encode==
+function encode(id){
+return btoa(id)
+}
+
+//==for decode==
+function decode(id){
+return atob(id)
+}
