@@ -1,0 +1,17 @@
+import { useEffect, useState } from "react";
+import { useWindowSize } from "@uidotdev/usehooks";
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  const size = useWindowSize();
+
+  useEffect(() => {
+    if (size?.width && size.width < 768) {
+      setIsMobile(true);
+    } else {
+      setIsMobile(false);
+    }
+  }, [size]);
+
+  return isMobile;
+}
