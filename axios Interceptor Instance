@@ -1,0 +1,42 @@
+import { getAuthKey } from "@/lib/StorageHelper";
+import axios from "axios";
+
+// let serverurl="192.168.1.10:5000"
+const axiosInterceptorInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL, // Replace with your API base URL
+});
+export const axiosConfig = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+});
+// Request interceptor
+axiosInterceptorInstance.interceptors.request.use(
+  (config) => {
+    // Modify the request config here (add headers, authentication tokens)
+    const accessToken = getAuthKey();
+    console.log(accessToken, "access");
+
+    // If token is present, add it to reque st's Authorization Header
+    if (accessToken) {
+      if (config.headers) config.headers.Authorization = accessToken;
+    }
+    return config;
+  },
+  (error) => {
+    // Handle request errors here
+    return Promise.reject(error);
+  },
+);
+
+// Response interceptor
+axiosInterceptorInstance.interceptors.response.use(
+  (response) => {
+    // Modify the response data here
+    return response;
+  },
+  (error) => {
+    // Handle response errors here
+    return Promise.reject(error);
+  },
+);
+
+export default axiosInterceptorInstance;
