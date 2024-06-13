@@ -1,0 +1,44 @@
+const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64String = event.target.result.split(',')[1]; // Remove the prefix
+                const fileType = file.type;
+                const fileName = file.name;
+                resolve({ status: true, message: 'success', data: { base64String, fileType, fileName } });
+            };
+            reader.onerror = function () {
+                reject({ status: false, message: 'Something went wrong', data: null });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            reject({ status: false, message: 'Please select an image file.', data: null });
+        }
+    });
+};
+
+
+const base64ToFile = ({ base64String, fileName, fileType }) => {
+    return new Promise((resolve, reject) => {
+        if (base64String && fileType && fileName) {
+            try {
+                const byteCharacters = atob(base64String); // Decode base64 string
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: fileType });
+                const file = new File([blob], fileName, { type: fileType });
+                resolve({ status: true, message: 'Success', data: file });
+            } catch (error) {
+                reject({ status: false, message: 'An error occurred while creating the file.', data: null });
+            }
+        } else {
+            reject({ status: false, message: 'Missing required parameters.', data: null });
+        }
+    });
+};
+
+export { fileToBase64, base64ToFile }
