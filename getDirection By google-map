@@ -1,0 +1,9 @@
+ async function getDirection() {
+        const directionsService = new google.maps.DirectionsService()
+        const results = await directionsService.route({
+          origin: `${userGet.pickup_point}`,
+          destination:`${userGet.destination}`,
+          travelMode:  google.maps.TravelMode.DRIVING,
+        })
+        console.log(results)
+      }
