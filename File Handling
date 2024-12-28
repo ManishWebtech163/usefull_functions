@@ -1,0 +1,181 @@
+// ==========================  Simple File Handling Component =============================
+
+import React, { useState } from "react";
+
+const FileHandler = () => {
+  // State to store the selected files
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  // State to store the upload status message (success or failure)
+  const [uploadStatus, setUploadStatus] = useState("");
+
+  // Handle file selection (triggered when user selects files)
+  const handleFileChange = (event) => {
+    // Convert the FileList object (from event.target.files) into an array
+    const files = Array.from(event.target.files);
+    // Update the selectedFiles state with the newly selected files
+    setSelectedFiles(files);
+  };
+
+  // Handle file upload (triggered when the upload button is clicked)
+  const handleUpload = async () => {
+    // Check if any files are selected
+    if (selectedFiles.length === 0) {
+      alert("Please select files to upload!"); // Alert the user if no files are selected
+      return;
+    }
+
+    // Create a FormData object to append files and send them in a POST request
+    const formData = new FormData();
+
+    // For Single File
+    formData.append("files", file);
+    
+    // For Multiple Files
+    selectedFiles.forEach((file) => {
+      formData.append("files", file); // Append each file to the FormData object
+    });
+
+    try {
+      // Make the API request to upload the files
+      const response = await fetch("/api/upload", {
+        method: "POST", // POST method to send data to the server
+        body: formData, // The FormData object as the body of the request
+      });
+
+      // If the response is not successful, throw an error
+      if (!response.ok) throw new Error("Upload failed");
+
+      // Parse the response JSON data if the upload is successful
+      const data = await response.json();
+      // Update the upload status with a success message
+      setUploadStatus(`Upload successful: ${data.message}`);
+    } catch (error) {
+      // If there is an error during the upload, set the error message as the status
+      setUploadStatus(`Upload failed: ${error.message}`);
+    }
+  };
+
+  return (
+    <div className="file-handler">
+      <h2>Simple File Handler</h2>
+      
+      {/* File input field to allow the user to select multiple files */}
+      <input
+        type="file"
+        multiple // Allow multiple files to be selected
+        onChange={handleFileChange} // Trigger handleFileChange when files are selected
+        className="file-input"
+      />
+      
+      {/* File Preview Section: Display the names of selected files */}
+      <div className="file-preview">
+        {selectedFiles.map((file, index) => (
+          <div key={index} className="file-item">
+            {/* Display the file name */}
+            <p>{file.name}</p>
+            {/* If the file is an image, show a preview */}
+            {file.type.startsWith("image/") && (
+              <img
+                src={URL.createObjectURL(file)} // Generate a temporary URL for image preview
+                alt="Preview"
+                width={100}
+                style={{ margin: "10px 0" }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Upload button to trigger the file upload */}
+      <button onClick={handleUpload} className="upload-button">
+        Upload
+      </button>
+
+      {/* Display the upload status message */}
+      {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
+    </div>
+  );
+};
+
+export default FileHandler;
+
+
+// ============================= File Handling Component with React Hook Form ===============================
+
+import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+
+const FileUploadForm = () => {
+  // Initialize React Hook Form
+  const { control, handleSubmit, formState: { errors } } = useForm();
+  const [uploadStatus, setUploadStatus] = useState(""); // State for upload status (success/failure)
+
+  // Handle form submission
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append("file", data.file[0]); // Append the selected file to FormData object
+
+    try {
+      // Send the file to the server
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+
+      const result = await response.json();
+      setUploadStatus(`Upload successful: ${result.message}`); // Success message
+    } catch (error) {
+      setUploadStatus(`Upload failed: ${error.message}`); // Error message
+    }
+  };
+
+  return (
+    <div className="file-upload-form">
+      <h2>File Upload with React Hook Form</h2>
+
+      {/* React Hook Form */}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        
+        {/* File Input with React Hook Form Controller */}
+        <Controller
+          name="file" // The name of the field
+          control={control} // Linking the field to React Hook Form
+          defaultValue="" // Default value for the field
+          rules={{
+            required: "File is required", // Validation for file presence
+            validate: {
+              fileSize: (value) =>
+                value && value[0].size <= 5 * 1024 * 1024 // File size must be <= 5MB
+                  ? true
+                  : "File size must be less than 5MB",
+            },
+          }}
+          render={({ field }) => (
+            <div>
+              <input
+                type="file"
+                accept="image/*" // Restrict to image files
+                {...field} // Link input to form control
+              />
+              {/* Show error message if validation fails */}
+              {errors.file && <p className="error">{errors.file.message}</p>}
+            </div>
+          )}
+        />
+        
+        {/* Submit Button */}
+        <button type="submit">Upload</button>
+      </form>
+
+      {/* Display the status message (success or error) */}
+      {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
+    </div>
+  );
+};
+
+export default FileUploadForm;
+
+
+
